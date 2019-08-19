@@ -7,13 +7,8 @@ defmodule CgExRay.Plug.OpenTracing do
   def init(default), do: default
 
   def call(conn, _) do
-    Process.put(:request_id, conn |> CgPhx.request_id)
-
-    # look for trace id in the request header to
-    trace_id = case List.keyfind(conn.req_headers, "x_instana_trace_id", 0) do
-      {"x_instana_trace_id", instana_trace_id} -> instana_trace_id
-      _ -> conn |> CgPhx.request_id
-    end
+    trace_id = conn |> CgPhx.trace_id
+    Process.put(:trace_id, trace_id)
 
     conn
     |> CgPhx.span_name

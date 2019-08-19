@@ -10,13 +10,13 @@ defmodule CgExRay.Span do
 
       def start_span(ctx) do
         conn = ctx.args |> List.first
-        request_id = conn |> CgPhx.request_id
+        trace_id = conn |> CgPhx.trace_id
         span_name = "#{CgPhx.controller_name(conn)} #{CgPhx.action_name(conn)}"
 
-        Process.put(:request_id, conn |> CgPhx.request_id)
+        Process.put(:trace_id, conn |> CgPhx.trace_id)
 
         span_name
-        |> Span.open(request_id)
+        |> Span.open(trace_id)
         |> :otter.tag(:component, "controller")
         |> :otter.tag(:kind, ctx.meta[:kind])
         |> :otter.tag(:controller, conn |> CgPhx.controller_name)
@@ -26,13 +26,12 @@ defmodule CgExRay.Span do
 
       def end_span(ctx, span, _rendered) do
         conn = ctx.args |> List.first
-        request_id = conn |> CgPhx.request_id
-
-        tracestore = Store.get(request_id)
+        trace_id = conn |> CgPhx.trace_id
+        tracestore = Store.get(trace_id)
         if length(tracestore) > 0 do
           controller_span = span
           |> :otter.log("<<< Ending action #{conn |> CgPhx.action_name}")
-          |> Span.close(request_id)
+          |> Span.close(trace_id)
         end
       end
     end
@@ -42,23 +41,23 @@ defmodule CgExRay.Span do
     quote do
       use ExRay, pre: :start_span, post: :end_span
 
-      defp request_id() do
-        case Process.get(:request_id) do
-          nil -> "request_id_missing"
-          request_id -> request_id
+      defp trace_id() do
+        case Process.get(:trace_id) do
+          nil -> "trace_id_missing"
+          trace_id -> trace_id
         end
       end
 
       defp start_span(ctx) do
         ctx.target
-        |> Span.open(request_id())
+        |> Span.open(trace_id())
         |> :otter.tag(:component, "database")
         |> :otter.tag(:query, ctx.meta[:query])
         |> :otter.log(log_query_string(ctx.meta))
       end
 
       defp end_span(ctx, p_span, _ret) do
-        p_span |> Span.close(request_id())
+        p_span |> Span.close(trace_id())
       end
 
       defp log_query_string([_, kind: kind, queryable: queryable]) do
@@ -73,16 +72,16 @@ defmodule CgExRay.Span do
     quote do
       use ExRay, pre: :start_span, post: :end_span
 
-      defp request_id() do
-        case Process.get(:request_id) do
-          nil -> "request_id_missing"
-          request_id -> request_id
+      defp trace_id() do
+        case Process.get(:trace_id) do
+          nil -> "trace_id_missing"
+          trace_id -> trace_id
         end
       end
 
       def start_span(ctx) do
         ctx.target
-        |> Span.open(request_id())
+        |> Span.open(trace_id())
         |> :otter.tag(:component, "kafka")
         |> :otter.tag(:topic, ctx.meta[:topic])
         |> :otter.tag(:source, Mix.Project.config[:app])
@@ -93,7 +92,7 @@ defmodule CgExRay.Span do
       end
 
       def end_span(_, p_span, _rendered) do
-        p_span |> Span.close(request_id())
+        p_span |> Span.close(trace_id())
       end
     end
   end

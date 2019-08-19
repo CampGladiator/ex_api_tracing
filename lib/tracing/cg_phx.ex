@@ -3,6 +3,8 @@ defmodule CgExRay.Tracing.CgPhx do
   A set of convenience function to deal with Phoenix
   """
 
+  @trace_field_header "x_instana_trace_id"
+
   @doc """
   Extract the action name from a Phoenix controller
   """
@@ -45,6 +47,13 @@ defmodule CgExRay.Tracing.CgPhx do
     end)
     |> List.first
     |> (fn({_, req_id}) -> req_id end).()
+  end
+
+  def trace_id(conn) do
+    case List.keyfind(conn.req_headers, @trace_field_header, 0) do
+      {@trace_field_header, instana_trace_id} -> instana_trace_id
+      _ -> request_id(conn)
+    end
   end
 
   def errorStack(conn) do

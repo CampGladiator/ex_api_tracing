@@ -11,21 +11,20 @@ defmodule CgExRay.Plug.CloseTracing do
 
   def call(conn, _opts) do
     register_before_send(conn, fn(conn) ->
-      request_id = conn |> CgPhx.request_id
-      # stacktraces = conn |> CgPhx.errorStack
+      trace_id = conn |> CgPhx.trace_id
       stacktraces = if conn.status == 500 do Process.info(conn.owner, :current_stacktrace) else nil end
-      traceStore = Store.get(request_id)
+      traceStore = Store.get(trace_id)
 
       if length(traceStore) == 2 do
-        Store.current(request_id)
+        Store.current(trace_id)
         |> :otter.tag(:component, "controller")
         |> :otter.tag(:controller, conn |> CgPhx.controller_name)
         |> :otter.tag(:action, conn |> CgPhx.action_name)
         |> :otter.log("Controller action #{conn |> CgPhx.action_name}")
-        |> Span.close(request_id)
+        |> Span.close(trace_id)
       end
 
-      case Store.current(request_id) do
+      case Store.current(trace_id) do
         nil -> nil
         parent_span -> parent_span
         |> :otter.tag(:scheme, conn.scheme)
@@ -37,7 +36,7 @@ defmodule CgExRay.Plug.CloseTracing do
         |> :otter.tag(:resp_body, conn.resp_body)
         |> :otter.tag(:stacktrace, stacktraces)
         |> :otter.log("Request completed.")
-        |> Span.close(request_id)
+        |> Span.close(trace_id)
       end
 
       conn
