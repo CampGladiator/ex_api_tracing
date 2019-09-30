@@ -10,6 +10,9 @@ defmodule CgExRay.MixProject do
       deps: deps(),
       description: "Wrapper around ex_ray for OpenTrace in Elixir Phoenix",
       package: package(),
+      aliases: aliases(),
+      name: "CgExRay",
+      source_url: "https://github.com/CampGladiator/cg_ex_ray"
     ]
   end
 
@@ -35,7 +38,16 @@ defmodule CgExRay.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:ex_ray , "~> 0.1"},
       {:plug, "~> 1.7"},
-      {:pre_plug, "~> 1.0"}
+      {:pre_plug, "~> 1.0"},
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      lint: [
+        "credo suggest --ignore-checks moduledoc,aliasusage,maxlinelength,aliasorder --strict"
+      ]
     ]
   end
 end

@@ -53,15 +53,29 @@ defmodule CgExRay.Span do
         |> Span.open(trace_id())
         |> :otter.tag(:component, "database")
         |> :otter.tag(:query, ctx.meta[:query])
+      end
+
+      defp end_span(ctx, p_span, _return) do
+        p_span
         |> :otter.log(log_query_string(ctx.meta))
+        |> Span.close(trace_id())
       end
 
-      defp end_span(ctx, p_span, _ret) do
-        p_span |> Span.close(trace_id())
+      defp log_query_string([_, kind: kind, queryable: queryable, count: count]) do
+        query = CgEcto.exec_query(unquote(repo), count)
+        if length(query) do
+          query = query |> List.insert_at(1, ["\\n"])
+        else
+          query = CgEcto.to_query(kind, unquote(repo), queryable)
+        end
+        query
       end
-
       defp log_query_string([_, kind: kind, queryable: queryable]) do
-        CgEcto.to_query(kind, unquote(repo), queryable)
+        query = CgEcto.exec_query(unquote(repo))
+        if !length(query) do
+          query = CgEcto.to_query(kind, unquote(repo), queryable)
+        end
+        query
       end
       defp log_query_string([_, sql: string]), do: string
       defp log_query_string(_meta), do: "Query not specified"

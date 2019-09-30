@@ -12,7 +12,7 @@ defmodule CgExRay.Plug.CloseTracing do
   def call(conn, _opts) do
     register_before_send(conn, fn(conn) ->
       trace_id = conn |> CgPhx.trace_id
-      stacktraces = if conn.status == 500 do Process.info(conn.owner, :current_stacktrace) else nil end
+      stacktraces = if conn.status == 500 do Process.info(conn.owner, :current_stacktrace) |> elem(1) else nil end
       traceStore = Store.get(trace_id)
 
       if length(traceStore) == 2 do
