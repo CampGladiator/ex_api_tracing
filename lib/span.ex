@@ -1,8 +1,8 @@
-defmodule CgExRay.Span do
+defmodule ExApiTracing.Span do
   alias ExRay.Span
   alias ExRay.Store
-  alias CgExRay.Tracing.CgPhx
-  alias CgExRay.Tracing.CgEcto
+  alias ExApiTracing.Tracing.ExPhx
+  alias ExApiTracing.Tracing.ExEcto
 
   def controller do
     quote do
@@ -10,27 +10,27 @@ defmodule CgExRay.Span do
 
       def start_span(ctx) do
         conn = ctx.args |> List.first
-        trace_id = conn |> CgPhx.trace_id
-        span_name = "#{CgPhx.controller_name(conn)} #{CgPhx.action_name(conn)}"
+        trace_id = conn |> ExPhx.trace_id
+        span_name = "#{ExPhx.controller_name(conn)} #{ExPhx.action_name(conn)}"
 
-        Process.put(:trace_id, conn |> CgPhx.trace_id)
+        Process.put(:trace_id, conn |> ExPhx.trace_id)
 
         span_name
         |> Span.open(trace_id)
         |> :otter.tag(:component, "controller")
         |> :otter.tag(:kind, ctx.meta[:kind])
-        |> :otter.tag(:controller, conn |> CgPhx.controller_name)
-        |> :otter.tag(:action, conn |> CgPhx.action_name)
-        |> :otter.log(">>> Starting action #{conn |> CgPhx.action_name} at #{conn.request_path}")
+        |> :otter.tag(:controller, conn |> ExPhx.controller_name)
+        |> :otter.tag(:action, conn |> ExPhx.action_name)
+        |> :otter.log(">>> Starting action #{conn |> ExPhx.action_name} at #{conn.request_path}")
       end
 
       def end_span(ctx, span, _rendered) do
         conn = ctx.args |> List.first
-        trace_id = conn |> CgPhx.trace_id
+        trace_id = conn |> ExPhx.trace_id
         tracestore = Store.get(trace_id)
         if length(tracestore) > 0 do
           controller_span = span
-          |> :otter.log("<<< Ending action #{conn |> CgPhx.action_name}")
+          |> :otter.log("<<< Ending action #{conn |> ExPhx.action_name}")
           |> Span.close(trace_id)
         end
       end
@@ -62,18 +62,18 @@ defmodule CgExRay.Span do
       end
 
       defp log_query_string([_, kind: kind, queryable: queryable, count: count]) do
-        query = CgEcto.exec_query(unquote(repo), count)
+        query = ExEcto.exec_query(unquote(repo), count)
         if length(query) do
           query = query |> List.insert_at(1, ["\\n"])
         else
-          query = CgEcto.to_query(kind, unquote(repo), queryable)
+          query = ExEcto.to_query(kind, unquote(repo), queryable)
         end
         query
       end
       defp log_query_string([_, kind: kind, queryable: queryable]) do
-        query = CgEcto.exec_query(unquote(repo))
+        query = ExEcto.exec_query(unquote(repo))
         if !length(query) do
-          query = CgEcto.to_query(kind, unquote(repo), queryable)
+          query = ExEcto.to_query(kind, unquote(repo), queryable)
         end
         query
       end

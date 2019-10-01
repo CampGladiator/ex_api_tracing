@@ -1,4 +1,4 @@
-# CgExRay
+# ExApiTracing
 
 Wrapper around [ex_ray](https://github.com/derailed/ex_ray) for OpenTrace in Elixir Phoenix. Initial implementation based on the [ex_ray_tracers](https://github.com/derailed/ex_ray_tracers), [phx_ex_ray](https://github.com/sashman/phx_ex_ray) example.
 
@@ -9,7 +9,7 @@ This package is currently private for CG you can install by adding github url
 ```elixir
 def deps do
   [
-    {:cg_ex_ray, git: "git@github.com:CampGladiator/cg_ex_ray.git"}
+    {:ex_api_tracing, git: "git@github.com:CampGladiator/ex_api_tracing.git"}
   ]
 end
 ```
@@ -45,8 +45,8 @@ ExRay.Store.create()
 use PrePlug
 
 ...
-plug CgExRay.Plug.OpenTracing
-pre_plug CgExRay.Plug.CloseTracing
+plug ExApiTracing.Plug.OpenTracing
+plug ExApiTracing.Plug.CloseTracing
 ...
 ```
 
@@ -60,7 +60,7 @@ Cross controller set up:
 def controller do
   quote do
     ...
-    import CgExRay.Span
+    import ExApiTracing.Span
     ...
   end
 end
@@ -69,7 +69,7 @@ end
 Then in a specific controller:
 
 ```elixir
-use CgExRay.Span, :controller
+use ExApiTracing.Span, :controller
 
 @trace kind: :action
 def index(conn, _params) do
@@ -82,7 +82,7 @@ end
 In a context, or any file where you use `alias MyApp.Repo`:
 
 ```elixir
-use CgExRay.Span, {:context, MyApp.Repo}
+use ExApiTracing.Span, {:context, MyApp.Repo}
 
 ...
 @trace query: :list_all_users, kind: :all, queryable: User

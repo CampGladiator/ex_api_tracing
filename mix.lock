@@ -13,5 +13,4 @@
   "otter_lib": {:hex, :otter_lib, "0.1.1", "9ef4401013c52f581278d7beb15ae536dc629cdac72dfeebac2384069f9461fd", [:rebar3], [], "hexpm"},
   "plug": {:hex, :plug, "1.8.3", "12d5f9796dc72e8ac9614e94bda5e51c4c028d0d428e9297650d09e15a684478", [:mix], [{:mime, "~> 1.0", [hex: :mime, repo: "hexpm", optional: false]}, {:plug_crypto, "~> 1.0", [hex: :plug_crypto, repo: "hexpm", optional: false]}, {:telemetry, "~> 0.4", [hex: :telemetry, repo: "hexpm", optional: true]}], "hexpm"},
   "plug_crypto": {:hex, :plug_crypto, "1.0.0", "18e49317d3fa343f24620ed22795ec29d4a5e602d52d1513ccea0b07d8ea7d4d", [:mix], [], "hexpm"},
-  "pre_plug": {:hex, :pre_plug, "1.0.1", "28e2c310d4033e6abfc0e52695fd8c27b4fd8802a0a50535641674602fa2c9de", [:mix], [{:plug, "~> 1.2", [hex: :plug, repo: "hexpm", optional: true]}], "hexpm"},
 }

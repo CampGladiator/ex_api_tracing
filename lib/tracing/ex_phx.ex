@@ -1,4 +1,4 @@
-defmodule CgExRay.Tracing.CgPhx do
+defmodule ExApiTracing.Tracing.ExPhx do
   @moduledoc """
   A set of convenience function to deal with Phoenix
   """

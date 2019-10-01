@@ -1,9 +1,9 @@
-defmodule CgExRay.MixProject do
+defmodule ExApiTracing.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :cg_ex_ray,
+      app: :ex_api_tracing,
       version: "0.0.1",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
@@ -11,8 +11,8 @@ defmodule CgExRay.MixProject do
       description: "Wrapper around ex_ray for OpenTrace in Elixir Phoenix",
       package: package(),
       aliases: aliases(),
-      name: "CgExRay",
-      source_url: "https://github.com/CampGladiator/cg_ex_ray"
+      name: "ExApiTracing",
+      source_url: "https://github.com/CampGladiator/ex_api_tracing"
     ]
   end
 
@@ -28,7 +28,7 @@ defmodule CgExRay.MixProject do
      files: ["lib", "mix.exs", "README*"],
      maintainers: ["vivek.s@campgladiator.com"],
      licenses: ["MIT"],
-     links: %{"GitHub" => "https://github.com/CampGladiator/cg_ex_ray"}
+     links: %{"GitHub" => "https://github.com/CampGladiator/ex_api_tracing"}
     ]
   end
 
@@ -38,7 +38,6 @@ defmodule CgExRay.MixProject do
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:ex_ray , "~> 0.1"},
       {:plug, "~> 1.7"},
-      {:pre_plug, "~> 1.0"},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end

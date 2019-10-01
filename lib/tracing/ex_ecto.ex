@@ -1,4 +1,4 @@
-defmodule CgExRay.Tracing.CgEcto do
+defmodule ExApiTracing.Tracing.ExEcto do
   @doc """
   Get the last executed query from the postgres activity
   """
@@ -9,7 +9,7 @@ defmodule CgExRay.Tracing.CgEcto do
     result.rows |> Enum.take(count)
   end
   @doc """
-  Convenience to retrieve the current CgEcto query as a string
+  Convenience to retrieve the current ExEcto query as a string
   """
   def to_query(kind, repo, queryable) do
     {q, _} = repo.to_sql(kind, queryable)

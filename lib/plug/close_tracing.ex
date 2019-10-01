@@ -1,26 +1,26 @@
-defmodule CgExRay.Plug.CloseTracing do
+defmodule ExApiTracing.Plug.CloseTracing do
   @behaviour Plug
 
   import Plug.Conn
 
   alias ExRay.Span
   alias ExRay.Store
-  alias CgExRay.Tracing.CgPhx
+  alias ExApiTracing.Tracing.ExPhx
 
   def init(opts), do: opts
 
   def call(conn, _opts) do
     register_before_send(conn, fn(conn) ->
-      trace_id = conn |> CgPhx.trace_id
+      trace_id = conn |> ExPhx.trace_id
       stacktraces = if conn.status == 500 do Process.info(conn.owner, :current_stacktrace) |> elem(1) else nil end
       traceStore = Store.get(trace_id)
 
       if length(traceStore) == 2 do
         Store.current(trace_id)
         |> :otter.tag(:component, "controller")
-        |> :otter.tag(:controller, conn |> CgPhx.controller_name)
-        |> :otter.tag(:action, conn |> CgPhx.action_name)
-        |> :otter.log("Controller action #{conn |> CgPhx.action_name}")
+        |> :otter.tag(:controller, conn |> ExPhx.controller_name)
+        |> :otter.tag(:action, conn |> ExPhx.action_name)
+        |> :otter.log("Controller action #{conn |> ExPhx.action_name}")
         |> Span.close(trace_id)
       end
 
